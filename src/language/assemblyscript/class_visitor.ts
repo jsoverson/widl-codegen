@@ -4,7 +4,6 @@ import {
   defValue,
   isReference,
   DecoderVisitor,
-  SizerVisitor,
   EncoderVisitor,
 } from ".";
 
@@ -35,16 +34,13 @@ export class ClassVisitor extends BaseVisitor {
     const decoder = new DecoderVisitor(this.writer);
     context.object!.accept(context, decoder);
     this.write(`\n`);
-    const sizer = new SizerVisitor(this.writer);
-    context.object!.accept(context, sizer);
-    this.write(`\n`);
     const encoder = new EncoderVisitor(this.writer);
     context.object!.accept(context, encoder);
     this.write(`\n`);
 
     this.write(`  toBuffer(): ArrayBuffer {
       let sizer = new Sizer();
-      this.size(sizer);
+      this.encode(sizer);
       let buffer = new ArrayBuffer(sizer.length);
       let encoder = new Encoder(buffer);
       this.encode(encoder);

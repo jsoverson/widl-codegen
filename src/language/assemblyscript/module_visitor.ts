@@ -34,7 +34,7 @@ export class ModuleVisitor extends ClassVisitor {
 
   visitDocumentBefore(context: Context): void {
     this.write(
-      `import { Decoder, Encoder, Sizer, Value } from "as-msgpack";
+      `import { Decoder, Writer, Encoder, Sizer, Value } from "as-msgpack";
     import { register, hostCall } from "wapc-guest-as";\n`
     );
     super.triggerDocumentBefore(context);

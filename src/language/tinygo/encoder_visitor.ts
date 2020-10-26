@@ -11,7 +11,7 @@ export class EncoderVisitor extends BaseVisitor {
     this.write(
       `func (o *${capitalize(
         context.object!.name.value
-      )}) Encode(encoder *msgpack.Encoder) {
+      )}) Encode(encoder msgpack.Writer) {
     if o == nil {
       encoder.WriteNil()
       return

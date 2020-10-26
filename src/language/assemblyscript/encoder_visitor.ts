@@ -9,7 +9,7 @@ export class EncoderVisitor extends BaseVisitor {
   visitObjectFieldsBefore(context: Context): void {
     super.triggerObjectFieldsBefore(context);
     this.write(
-      `  encode(encoder: Encoder): void {
+      `  encode(encoder: Writer): void {
     encoder.writeMapSize(${context.fields!.length});\n`
     );
   }

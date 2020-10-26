@@ -4,7 +4,6 @@ import {
   fieldName,
   isReference,
   DecoderVisitor,
-  SizerVisitor,
   EncoderVisitor,
 } from ".";
 
@@ -37,13 +36,11 @@ export class StructVisitor extends BaseVisitor {
     const object = context.object!;
     const decoder = new DecoderVisitor(this.writer);
     object.accept(context, decoder);
-    const sizer = new SizerVisitor(this.writer);
-    object.accept(context, sizer);
     const encoder = new EncoderVisitor(this.writer);
     object.accept(context, encoder);
     this.write(`func (o *${object.name.value}) ToBuffer() []byte {
       var sizer msgpack.Sizer
-      o.Size(&sizer)
+      o.Encode(&sizer)
       buffer := make([]byte, sizer.Len())
       encoder := msgpack.NewEncoder(buffer)
       o.Encode(&encoder)
