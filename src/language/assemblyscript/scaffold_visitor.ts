@@ -1,14 +1,10 @@
 import { Context, Writer, BaseVisitor } from "../../widl";
 import {
   expandType,
-  encode,
-  size,
   isReference,
   capitalize,
   isVoid,
-  isObject,
   mapArgs,
-  varAccessArg,
   defaultValueForType,
 } from ".";
 

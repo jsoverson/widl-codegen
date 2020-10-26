@@ -2,7 +2,6 @@ import { Context, Writer, BaseVisitor } from "../../widl";
 import {
   expandType,
   encode,
-  size,
   isReference,
   capitalize,
   isVoid,
@@ -87,7 +86,7 @@ export class WrapperFuncsVisitor extends BaseVisitor {
       this.write(`return response.ToBuffer(), nil\n`);
     } else {
       this.write(`var sizer msgpack.Sizer
-      ${size("response", operation.type, isReference(operation.annotations))}
+      ${encode("response", operation.type, isReference(operation.annotations))}
       ua := make([]byte, sizer.Len());
       encoder := msgpack.NewEncoder(ua);
       ${encode(

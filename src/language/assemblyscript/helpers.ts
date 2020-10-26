@@ -37,16 +37,6 @@ export function mapVals(
 }
 
 /**
- * Creates string that is an msgpack size code block
- * @param variable variable that is being size
- * @param t the type node to encode
- * @param isReference if the type that is being expanded has a `@ref` annotation
- */
-export function size(variable: string, t: Type, isReference: boolean): string {
-  return write("sizer", "Sizer", "size", variable, t, false, isReference);
-}
-
-/**
  * Creates string that is an msgpack encode code block
  * @param variable variable that is being encode
  * @param t the type node to encode
@@ -57,7 +47,7 @@ export function encode(
   t: Type,
   isReference: boolean
 ): string {
-  return write("encoder", "Encoder", "encode", variable, t, false, isReference);
+  return write("encoder", "Writer", "encode", variable, t, false, isReference);
 }
 
 /**

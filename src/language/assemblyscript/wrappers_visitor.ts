@@ -2,7 +2,6 @@ import { Context, Writer, BaseVisitor } from "../../widl";
 import {
   expandType,
   encode,
-  size,
   isReference,
   capitalize,
   isVoid,
@@ -61,7 +60,7 @@ export class WrappersVisitor extends BaseVisitor {
     } else {
       this.write(`const sizer = new Sizer();\n`);
       this.write(
-        size("response", operation.type, isReference(operation.annotations))
+        encode("response", operation.type, isReference(operation.annotations))
       );
       this.write(`const ua = new ArrayBuffer(sizer.length);
       const encoder = new Encoder(ua);
