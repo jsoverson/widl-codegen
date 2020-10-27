@@ -41,7 +41,7 @@ export class ModuleVisitor extends BaseVisitor {
     this.write(`"context"\n`);
     this.write(`\n`);
     this.write(`\t"github.com/wapc/wapc-go"\n`);
-    this.write(`\t"github.com/vmihailenco/msgpack/v5"\n`);
+    this.write(`\t"github.com/vmihailenco/msgpack/v4"\n`);
     this.write(`)\n\n`);
     super.triggerDocumentBefore(context);
   }
