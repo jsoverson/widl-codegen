@@ -34,7 +34,8 @@ export class EncoderVisitor extends BaseVisitor {
   }
 
   visitObjectFieldsAfter(context: Context): void {
-    this.write(`return nil
+    this.write(`
+    return nil
   }\n\n`);
     super.triggerObjectFieldsAfter(context);
   }
