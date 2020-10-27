@@ -11,10 +11,10 @@ export class EncoderVisitor extends BaseVisitor {
     this.write(
       `func (o *${capitalize(
         context.object!.name.value
-      )}) Encode(encoder msgpack.Writer) {
+      )}) Encode(encoder msgpack.Writer) error {
     if o == nil {
       encoder.WriteNil()
-      return
+      return nil
     }
     encoder.WriteMapSize(${context.fields!.length})\n`
     );
@@ -34,7 +34,8 @@ export class EncoderVisitor extends BaseVisitor {
   }
 
   visitObjectFieldsAfter(context: Context): void {
-    this.write(`}\n\n`);
+    this.write(`return nil
+  }\n\n`);
     super.triggerObjectFieldsAfter(context);
   }
 }
