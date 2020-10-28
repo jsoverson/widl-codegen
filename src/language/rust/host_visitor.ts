@@ -1,4 +1,4 @@
-import { Context, Writer, BaseVisitor, Optional, List } from "../../widl";
+import { Context, Writer, BaseVisitor } from "../../widl";
 import {
   expandType,
   isReference,
@@ -6,7 +6,6 @@ import {
   capitalize,
   fieldName,
   isVoid,
-  isObject,
 } from ".";
 import { defaultValueForType, functionName } from "./helpers";
 
@@ -29,14 +28,14 @@ impl Default for Host {
     }
 }
 
-/// Creates a named host binding for the key-value store capability
+/// Creates a named host binding
 pub fn host(binding: &str) -> Host {
     Host {
         binding: binding.to_string(),
     }
 }
 
-/// Creates the default host binding for the key-value store capability
+/// Creates the default host binding
 pub fn default() -> Host {
     Host::default()
 }
