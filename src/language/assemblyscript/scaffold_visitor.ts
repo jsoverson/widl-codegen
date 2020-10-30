@@ -16,7 +16,7 @@ export class ScaffoldVisitor extends BaseVisitor {
   visitDocumentBefore(context: Context): void {
     const packageName = context.config["package"] || "./module";
     super.visitDocumentBefore(context);
-    this.write(`import { handleCall, handleAbort } from "wapc-guest-as";\n`);
+    this.write(`import { handleCall, handleAbort } from "@wapc/as-guest";\n`);
     this.write(`import { `);
     const types = new TypesVisitor(this.writer);
     context.document?.accept(context, types);
