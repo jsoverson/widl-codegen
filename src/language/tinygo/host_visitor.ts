@@ -52,7 +52,17 @@ func NewHost(binding string) *Host {
     }
     this.write(` {\n`);
 
+    let defaultVal = "";
+    if (!retVoid) {
+      defaultVal = defaultValueForType(operation.type) + ", ";
+    }
     if (operation.isUnary()) {
+      this.write(`inputBytes, err := msgpack.ToBytes(&${
+        operation.unaryOp().name.value
+      })
+      if err != nil {
+        return ${defaultVal}err
+      }\n`);
       if (!retVoid) {
         this.write(`payload, `);
       } else {
@@ -61,9 +71,7 @@ func NewHost(binding string) *Host {
       this.write(
         `err := wapc.HostCall(h.binding, ${strQuote(
           context.namespace.name.value
-        )}, ${strQuote(operation.name.value)}, ${
-          operation.unaryOp().name.value
-        }.ToBuffer())\n`
+        )}, ${strQuote(operation.name.value)}, inputBytes)\n`
       );
     } else {
       this.write(`inputArgs := ${fieldName(operation.name.value)}Args{\n`);
@@ -72,6 +80,10 @@ func NewHost(binding string) *Host {
         this.write(`  ${fieldName(argName)}: ${argName},\n`);
       });
       this.write(`}\n`);
+      this.write(`inputBytes, err := msgpack.ToBytes(&inputArgs)
+      if err != nil {
+        return ${defaultVal}err
+      }\n`);
       if (!retVoid) {
         this.write(`payload, `);
       } else {
@@ -81,13 +93,12 @@ func NewHost(binding string) *Host {
       h.binding,
       ${strQuote(context.namespace.name.value)},
       ${strQuote(operation.name.value)},
-      inputArgs.ToBuffer(),
+      inputBytes,
     )\n`);
     }
     if (!retVoid) {
-      const defaultVal = defaultValueForType(operation.type);
       this.write(`if err != nil {
-        return ${defaultVal}, err
+        return ${defaultVal}err
       }\n`);
       this.write(`decoder := msgpack.NewDecoder(payload)\n`);
       if (isObject(operation.type)) {
