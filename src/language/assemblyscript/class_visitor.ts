@@ -36,6 +36,16 @@ export class ClassVisitor extends BaseVisitor {
     this.write(`\n`);
     const encoder = new EncoderVisitor(this.writer);
     context.object!.accept(context, encoder);
+    this.write(`\n`);
+
+    this.write(`  toBuffer(): ArrayBuffer {
+      let sizer = new Sizer();
+      this.encode(sizer);
+      let buffer = new ArrayBuffer(sizer.length);
+      let encoder = new Encoder(buffer);
+      this.encode(encoder);
+      return buffer;
+    }\n`);
     super.triggerObjectFieldsAfter(context);
   }
 

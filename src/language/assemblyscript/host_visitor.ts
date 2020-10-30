@@ -46,9 +46,9 @@ export class HostVisitor extends BaseVisitor {
       this.write(
         `hostCall(this.binding, ${strQuote(
           context.namespace.name.value
-        )}, ${strQuote(operation.name.value)}, toArrayBuffer(${
+        )}, ${strQuote(operation.name.value)}, ${
           operation.unaryOp().name.value
-        }));\n`
+        }.toBuffer());\n`
       );
     } else {
       this.write(
@@ -65,7 +65,7 @@ export class HostVisitor extends BaseVisitor {
       this.binding,
       ${strQuote(context.namespace.name.value)},
       ${strQuote(operation.name.value)},
-      toArrayBuffer(inputArgs)
+      inputArgs.toBuffer()
     );\n`);
     }
     if (!retVoid) {
