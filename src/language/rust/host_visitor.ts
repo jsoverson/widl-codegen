@@ -7,7 +7,7 @@ import {
   fieldName,
   isVoid,
 } from ".";
-import { defaultValueForType, functionName } from "./helpers";
+import { functionName } from "./helpers";
 
 export class HostVisitor extends BaseVisitor {
   constructor(writer: Writer) {
