@@ -57,7 +57,7 @@ export class WrappersVisitor extends BaseVisitor {
       this.write(`return new ArrayBuffer(0);\n`);
     } else if (isObject(operation.type)) {
       this.visitWrapperBeforeReturn(context);
-      this.write(`return response.toBuffer();\n`);
+      this.write(`return toArrayBuffer(response);\n`);
     } else {
       this.write(`const sizer = new Sizer();\n`);
       this.write(
