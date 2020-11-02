@@ -190,9 +190,7 @@ export const expandType = (
     case type instanceof Optional:
       let expanded = expandType((type as Optional).type, true, isReference);
       if (useOptional) {
-        return primitives.has(expanded)
-          ? `Value<${expanded}> | null`
-          : `${expanded} | null`;
+        return `${expanded} | null`;
       }
       return expanded;
     default:
@@ -224,12 +222,6 @@ export function read(
       }
       let namedNode = t as Named;
       if (decodeFuncs.has(namedNode.Name.value)) {
-        if (prevOptional) {
-          if (primitives.has(namedNode.Name.value))
-            return `${prefix}new Value(decoder.${decodeFuncs.get(
-              namedNode.Name.value
-            )}());\n`;
-        }
         return `${prefix}decoder.${decodeFuncs.get(namedNode.Name.value)}();\n`;
       }
       return `${prefix}${namedNode.Name.value}.decode(decoder);`;
