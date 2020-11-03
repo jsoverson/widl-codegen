@@ -1,4 +1,4 @@
-import { Context, Writer, BaseVisitor } from "../../widl";
+import { Context, Writer, BaseVisitor, Optional } from "../../widl";
 import {
   expandType,
   read,
@@ -32,7 +32,7 @@ export class HostVisitor extends BaseVisitor {
       if (index > 0) {
         this.write(`, `);
       }
-      this.write(`${arg.name.value}: ${expandType(arg.type, false, false)}`);
+      this.write(`${arg.name.value}: ${expandType(arg.type, true, false)}`);
     });
     this.write(`): ${expandType(operation.type, false, false)} {\n`);
 
@@ -79,14 +79,28 @@ export class HostVisitor extends BaseVisitor {
           )}.decode(decoder);\n`
         );
       } else {
-        this.write(
-          `    const ${read(
-            "ret",
-            operation.type,
-            false,
-            isReference(operation.annotations)
-          )}`
-        );
+        if (operation.type instanceof Optional) {
+          this.write(
+            `    let ret: ${operation.type} | null = null;
+            if (!decoder.isNextNil()) {
+              ${read(
+                "ret",
+                operation.type,
+                false,
+                isReference(operation.annotations)
+              )}
+            }\n`
+          );
+        } else {
+          this.write(
+            `    const ${read(
+              "ret",
+              operation.type,
+              false,
+              isReference(operation.annotations)
+            )}`
+          );
+        }
         this.write(`    return ret;\n`);
       }
     }

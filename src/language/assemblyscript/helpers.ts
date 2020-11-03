@@ -406,13 +406,11 @@ export function write(
       code += "if (" + variable + " === null) {\n";
       code += typeInst + ".writeNil()\n";
       code += "} else {\n";
-      code +=
-        "const unboxed = " + variable + `${variable != "item" ? "!" : ""}\n`;
       code += write(
         typeInst,
         typeClass,
         typeMeth,
-        "unboxed",
+        variable,
         optionalNode.type,
         true,
         isReference
