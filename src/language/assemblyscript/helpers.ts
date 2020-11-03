@@ -307,6 +307,11 @@ export function write(
       }
       const namedNode = t as Named;
       if (encodeFuncs.has(namedNode.Name.value)) {
+        if (prevOptional) {
+          return `${typeInst}.${encodeFuncs.get(
+            namedNode.Name.value
+          )}(${variable}!);\n`;
+        }
         return `${typeInst}.${encodeFuncs.get(
           namedNode.Name.value
         )}(${variable});\n`;
