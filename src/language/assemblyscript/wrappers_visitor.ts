@@ -27,9 +27,11 @@ export class WrappersVisitor extends BaseVisitor {
         isReference(operation.annotations)
       )};\n`
     );
-    this
-      .write(`function ${operation.name.value}Wrapper(payload: ArrayBuffer): ArrayBuffer {
-      const decoder = new Decoder(payload)\n`);
+    this.write(
+      `function ${operation.name.value}Wrapper(payload: ArrayBuffer): ArrayBuffer {\n`
+    );
+    this.visitWrapperBeforeInvoke(context);
+    this.write(`const decoder = new Decoder(payload)\n`);
     if (operation.isUnary()) {
       this.write(`const request = new ${expandType(
         operation.unaryOp().type,
@@ -74,6 +76,10 @@ export class WrappersVisitor extends BaseVisitor {
       this.write(`return ua;\n`);
     }
     this.write(`}\n\n`);
+  }
+
+  visitWrapperBeforeInvoke(context: Context): void {
+    this.triggerCallbacks(context, "WrapperBeforeInvoke");
   }
 
   visitWrapperBeforeReturn(context: Context): void {
