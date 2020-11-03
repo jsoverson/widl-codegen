@@ -34,7 +34,7 @@ export class HostVisitor extends BaseVisitor {
       }
       this.write(`${arg.name.value}: ${expandType(arg.type, true, false)}`);
     });
-    this.write(`): ${expandType(operation.type, false, false)} {\n`);
+    this.write(`): ${expandType(operation.type, true, false)} {\n`);
 
     this.write(`  `);
     const retVoid = isVoid(operation.type);
@@ -81,11 +81,11 @@ export class HostVisitor extends BaseVisitor {
       } else {
         if (operation.type instanceof Optional) {
           this.write(
-            `    let ret: ${operation.type} | null = null;
+            `    let ret: ${expandType(operation.type, true, false)} = null;
             if (!decoder.isNextNil()) {
               ${read(
                 "ret",
-                operation.type,
+                (operation.type as Optional).type,
                 false,
                 isReference(operation.annotations)
               )}
