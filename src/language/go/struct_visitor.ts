@@ -19,7 +19,7 @@ export class StructVisitor extends BaseVisitor {
         undefined,
         true,
         isReference(field.annotations)
-      )} \`msgpack:"${field.name.value}"\`\n`
+      )} \`json:"${field.name.value}" msgpack:"${field.name.value}"\`\n`
     );
     super.triggerObjectField(context);
   }
