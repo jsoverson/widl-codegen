@@ -8,7 +8,8 @@ export class StructVisitor extends BaseVisitor {
 
   visitObjectBefore(context: Context): void {
     super.triggerObjectBefore(context);
-    this.write(`#[derive(Debug, PartialEq, Deserialize, Serialize, Default, Clone)]
+    this
+      .write(`#[derive(Debug, PartialEq, Deserialize, Serialize, Default, Clone)]
 pub struct ${context.object!.name.value} {\n`);
   }
 

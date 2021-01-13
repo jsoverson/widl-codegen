@@ -44,8 +44,22 @@ export function mapVals(
  * @param t the type node to encode
  * @param isReference if the type that is being expanded has a `@ref` annotation
  */
-export function size(variable: string, t: Type, isReference: boolean): string {
-  return write("sizer", "Writer", "Encode", variable, t, false, isReference);
+export function size(
+  typeInstRef: boolean,
+  variable: string,
+  t: Type,
+  isReference: boolean
+): string {
+  return write(
+    "sizer",
+    typeInstRef,
+    "Writer",
+    "Encode",
+    variable,
+    t,
+    false,
+    isReference
+  );
 }
 
 /**
@@ -55,11 +69,21 @@ export function size(variable: string, t: Type, isReference: boolean): string {
  * @param isReference if the type that is being expanded has a `@ref` annotation
  */
 export function encode(
+  typeInstRef: boolean,
   variable: string,
   t: Type,
   isReference: boolean
 ): string {
-  return write("encoder", "Writer", "Encode", variable, t, false, isReference);
+  return write(
+    "encoder",
+    typeInstRef,
+    "Writer",
+    "Encode",
+    variable,
+    t,
+    false,
+    isReference
+  );
 }
 
 /**
@@ -241,6 +265,7 @@ export const expandType = (
  * @param isReference if the type that is being expanded has a `@ref` annotation
  */
 export function read(
+  typeInstRef: boolean,
   variable: string,
   errorHandling: boolean,
   defaultVal: string,
@@ -273,7 +298,8 @@ export function read(
   switch (true) {
     case t instanceof Named:
       let namedNode = t as Named;
-      let decodeFn = `Decode${namedNode.Name.value}(decoder)`;
+      const amp = typeInstRef ? "&" : "";
+      let decodeFn = `Decode${namedNode.Name.value}(${amp}decoder)`;
       if (isReference) {
         decodeFn = `decoder.ReadString()`;
       } else if (decodeFuncs.has(namedNode.Name.value)) {
@@ -308,6 +334,7 @@ export function read(
       mapCode += `for mapSize > 0 {
         mapSize--\n`;
       mapCode += read(
+        typeInstRef,
         "key",
         true,
         defaultVal,
@@ -322,6 +349,7 @@ export function read(
           return ${returnPrefix}err
         }\n`;
       mapCode += read(
+        typeInstRef,
         "value",
         true,
         defaultVal,
@@ -360,6 +388,7 @@ export function read(
           (t as List).type instanceof Optional ? "*" : ""
         }${expandType((t as List).type, undefined, false, isReference)}\n`;
       listCode += read(
+        typeInstRef,
         "nonNilItem",
         true,
         defaultVal,
@@ -384,7 +413,15 @@ export function read(
         case optNode.type instanceof Map:
           return (
             prefix +
-            read(variable, false, defaultVal, optNode.type, true, isReference)
+            read(
+              typeInstRef,
+              variable,
+              false,
+              defaultVal,
+              optNode.type,
+              true,
+              isReference
+            )
           );
       }
       let optCode = "";
@@ -400,6 +437,7 @@ export function read(
         isReference
       )}\n`;
       optCode += read(
+        typeInstRef,
         variable,
         false,
         defaultVal,
@@ -427,6 +465,7 @@ export function read(
  */
 export function write(
   typeInst: string,
+  typeInstRef: boolean,
   typeClass: string,
   typeMeth: string,
   variable: string,
@@ -446,7 +485,8 @@ export function write(
           namedNode.Name.value
         )}(${variable})\n`;
       }
-      return `${variable}.${typeMeth}(${typeInst})\n`;
+      const amp = typeInstRef ? "&" : "";
+      return `${variable}.${typeMeth}(${amp}${typeInst})\n`;
     case t instanceof Map:
       const mappedNode = t as Map;
       code +=
@@ -456,6 +496,7 @@ export function write(
       for k, v := range ${variable} {
         ${write(
           typeInst,
+          typeInstRef,
           typeClass,
           typeMeth,
           "k",
@@ -464,6 +505,7 @@ export function write(
           isReference
         )}${write(
           typeInst,
+          typeInstRef,
           typeClass,
           typeMeth,
           "v",
@@ -481,6 +523,7 @@ export function write(
       for _, v := range ${variable} {
         ${write(
           typeInst,
+          typeInstRef,
           typeClass,
           typeMeth,
           "v",
@@ -496,6 +539,7 @@ export function write(
         case (t as Optional).type instanceof Map:
           return write(
             typeInst,
+            typeInstRef,
             typeClass,
             typeMeth,
             variable,
@@ -513,6 +557,7 @@ export function write(
       }
       code += write(
         typeInst,
+        typeInstRef,
         typeClass,
         typeMeth,
         vprefix + variable,

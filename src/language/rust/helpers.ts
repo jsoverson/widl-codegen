@@ -60,13 +60,9 @@ export function defValue(fieldDef: FieldDefinition): string {
     case Optional:
       return "None";
     case List:
+      return "Vec::new()";
     case Map:
-      return `${expandType(
-        type,
-        undefined,
-        false,
-        isReference(fieldDef.annotations)
-      )}::new()`;
+      return "Map::new()";
     case Named:
       switch ((type as Named).Name.value) {
         case "ID":
@@ -104,8 +100,9 @@ export function defaultValueForType(type: Type, packageName?: string): string {
     case Optional:
       return "None";
     case List:
+      return "Vec::new()";
     case Map:
-      return `${expandType(type, packageName, false, false)}{}`;
+      return "Map::new()";
     case Named:
       switch ((type as Named).Name.value) {
         case "ID":
@@ -243,7 +240,7 @@ export function isReference(annotations: Annotation[]): boolean {
 }
 
 /**
- * Capitlizes a given string
+ * Capitalizes a given string
  * @param str string to be capitlized
  * @returns string with first character capitalized. If empty string returns empty string.
  */

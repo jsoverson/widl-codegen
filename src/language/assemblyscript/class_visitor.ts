@@ -14,7 +14,9 @@ export class ClassVisitor extends BaseVisitor {
 
   visitObjectBefore(context: Context): void {
     super.triggerObjectBefore(context);
-    this.write(`export class ${context.object!.name.value} implements Codec {\n`);
+    this.write(
+      `export class ${context.object!.name.value} implements Codec {\n`
+    );
   }
 
   visitObjectField(context: Context): void {

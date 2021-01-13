@@ -40,7 +40,7 @@ export declare function isObject(t: Type): boolean;
  */
 export declare function isReference(annotations: Annotation[]): boolean;
 /**
- * Capitlizes a given string
+ * Capitalizes a given string
  * @param str string to be capitlized
  * @returns string with first character capitalized. If empty string returns empty string.
  */

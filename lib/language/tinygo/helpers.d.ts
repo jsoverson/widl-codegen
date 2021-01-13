@@ -12,14 +12,14 @@ export declare function mapVals(vd: ValuedDefinition[], sep: string, joinOn: str
  * @param t the type node to encode
  * @param isReference if the type that is being expanded has a `@ref` annotation
  */
-export declare function size(variable: string, t: Type, isReference: boolean): string;
+export declare function size(typeInstRef: boolean, variable: string, t: Type, isReference: boolean): string;
 /**
  * Creates string that is an msgpack encode code block
  * @param variable variable that is being encode
  * @param t the type node to encode
  * @param isReference if the type that is being expanded has a `@ref` annotation
  */
-export declare function encode(variable: string, t: Type, isReference: boolean): string;
+export declare function encode(typeInstRef: boolean, variable: string, t: Type, isReference: boolean): string;
 /**
  * Return default value for a FieldDefinition. Default value of objects are instantiated.
  * @param fieldDef FieldDefinition Node to get default value of
@@ -45,7 +45,7 @@ export declare const expandType: (type: Type, packageName: string | undefined, u
  * @param prevOptional if type is being expanded and the parent type is optional
  * @param isReference if the type that is being expanded has a `@ref` annotation
  */
-export declare function read(variable: string, errorHandling: boolean, defaultVal: string, t: Type, prevOptional: boolean, isReference: boolean): string;
+export declare function read(typeInstRef: boolean, variable: string, errorHandling: boolean, defaultVal: string, t: Type, prevOptional: boolean, isReference: boolean): string;
 /**
  * Creates string that is an msgpack write code block
  * @param typeInst name of variable which object that is writting is assigning to
@@ -56,7 +56,7 @@ export declare function read(variable: string, errorHandling: boolean, defaultVa
  * @param prevOptional if type is being expanded and the parent type is optional
  * @param isReference if the type that is being expanded has a `@ref` annotation
  */
-export declare function write(typeInst: string, typeClass: string, typeMeth: string, variable: string, t: Type, prevOptional: boolean, isReference: boolean): string;
+export declare function write(typeInst: string, typeInstRef: boolean, typeClass: string, typeMeth: string, variable: string, t: Type, prevOptional: boolean, isReference: boolean): string;
 /**
  * Determines if a node is a void node
  * @param t Node that is a Type node

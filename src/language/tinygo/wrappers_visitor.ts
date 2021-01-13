@@ -84,13 +84,19 @@ export class WrapperFuncsVisitor extends BaseVisitor {
       this.write(`return []byte{}, nil\n`);
     } else if (isObject(operation.type)) {
       this.visitWrapperBeforeReturn(context);
-      this.write(`return response.ToBuffer(), nil\n`);
+      this.write(`return msgpack.ToBytes(&response)\n`);
     } else {
       this.write(`var sizer msgpack.Sizer
-      ${size("response", operation.type, isReference(operation.annotations))}
+      ${size(
+        true,
+        "response",
+        operation.type,
+        isReference(operation.annotations)
+      )}
       ua := make([]byte, sizer.Len());
       encoder := msgpack.NewEncoder(ua);
       ${encode(
+        true,
         "response",
         operation.type,
         isReference(operation.annotations)

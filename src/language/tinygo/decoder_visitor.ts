@@ -49,6 +49,7 @@ export class DecoderVisitor extends BaseVisitor {
     this.write(`case "${field.name.value}":\n`);
     this.write(
       read(
+        false,
         `o.${fieldName(field.name.value)}`,
         true,
         "",

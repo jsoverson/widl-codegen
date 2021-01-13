@@ -25,6 +25,7 @@ export class EncoderVisitor extends BaseVisitor {
     this.write(`encoder.WriteString(${strQuote(field.name.value)})\n`);
     this.write(
       encode(
+        false,
         "o." + fieldName(field.name.value),
         field.type,
         isReference(field.annotations)

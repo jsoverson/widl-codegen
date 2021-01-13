@@ -38,13 +38,6 @@ export class StructVisitor extends BaseVisitor {
     object.accept(context, decoder);
     const encoder = new EncoderVisitor(this.writer);
     object.accept(context, encoder);
-    this.write(`func (o *${object.name.value}) ToBuffer() []byte {
-      var sizer msgpack.Sizer
-      o.Encode(&sizer)
-      buffer := make([]byte, sizer.Len())
-      encoder := msgpack.NewEncoder(buffer)
-      o.Encode(&encoder)
-      return buffer
-    }\n\n`);
+    this.write(`\n`);
   }
 }
