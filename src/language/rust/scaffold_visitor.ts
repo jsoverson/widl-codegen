@@ -1,6 +1,5 @@
 import { Context, Writer, BaseVisitor } from "../../widl";
 import {
-  capitalize,
   defaultValueForType,
   expandType,
   functionName,
@@ -17,10 +16,10 @@ export class ScaffoldVisitor extends BaseVisitor {
   visitDocumentBefore(context: Context): void {
     const useName = context.config["use"] || "generated";
     super.visitDocumentBefore(context);
-    this.write(`pub mod ${useName};
+    this.write(`mod ${useName};
 extern crate wapc_guest as guest;
 use guest::prelude::*;
-use ${useName}::*;\n\n`);
+pub use ${useName}::*;\n\n`);
   }
 
   visitInterface(context: Context): void {
