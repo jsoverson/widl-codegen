@@ -48,7 +48,7 @@ impl Host {`);
     this.write(`\npub fn ${functionName(operation.name.value)}(&self`);
     operation.arguments.map((arg, index) => {
       this.write(
-        `, ${arg.name.value}: ${expandType(arg.type, undefined, false, false)}`
+        `, ${fieldName(arg.name.value)}: ${expandType(arg.type, undefined, false, false)}`
       );
     });
     this.write(`) `);
@@ -80,7 +80,7 @@ impl Host {`);
       this.write(`let input_args = ${capitalize(operation.name.value)}Args{\n`);
       operation.arguments.map((arg) => {
         const argName = arg.name.value;
-        this.write(`  ${fieldName(argName)}: ${argName},\n`);
+        this.write(`  ${fieldName(argName)},\n`);
       });
       this.write(`};\n`);
       this.write(`host_call(
