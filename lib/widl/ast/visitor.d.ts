@@ -1,4 +1,4 @@
-import { Document, NamespaceDefinition, ObjectDefinition, InterfaceDefinition, EnumDefinition, UnionDefinition, InputValueDefinition, FieldDefinition, AnnotationDefinition, OperationDefinition, EnumValueDefinition } from "../";
+import { Document, NamespaceDefinition, ObjectDefinition, InterfaceDefinition, RoleDefinition, EnumDefinition, UnionDefinition, InputValueDefinition, FieldDefinition, AnnotationDefinition, OperationDefinition, EnumValueDefinition } from "../";
 export declare class Writer {
     private code;
     write(source: string): void;
@@ -8,6 +8,7 @@ export declare type ObjectMap<T = any> = {
     [key: string]: T;
 };
 interface NamedParameters {
+    role?: RoleDefinition;
     object?: ObjectDefinition;
     operations?: OperationDefinition[];
     operation?: OperationDefinition;
@@ -30,10 +31,12 @@ export declare class Context {
     document?: Document;
     namespace: NamespaceDefinition;
     interface: InterfaceDefinition;
+    roles: RoleDefinition[];
     objects: ObjectDefinition[];
     enums: EnumDefinition[];
     unions: UnionDefinition[];
     inputs: InputValueDefinition[];
+    role?: RoleDefinition;
     object?: ObjectDefinition;
     operations?: OperationDefinition[];
     operation?: OperationDefinition;
@@ -51,14 +54,18 @@ export declare class Context {
     annotations?: AnnotationDefinition[];
     annotation?: AnnotationDefinition;
     constructor(config: ObjectMap, document?: Document, other?: Context);
-    clone({ object, operations, operation, argumentsDef, argument, argumentIndex, fields, field, fieldIndex, enumDef, enumValues, enumValue, union, input, annotations, annotation, }: NamedParameters): Context;
+    clone({ role, object, operations, operation, argumentsDef, argument, argumentIndex, fields, field, fieldIndex, enumDef, enumValues, enumValue, union, input, annotations, annotation, }: NamedParameters): Context;
     private parseDocument;
 }
 export interface Visitor {
     visitDocumentBefore(context: Context): void;
     visitNamespace(context: Context): void;
+    visitAllOperationsBefore(context: Context): void;
     visitInterfaceBefore(context: Context): void;
     visitInterface(context: Context): void;
+    visitRolesBefore(context: Context): void;
+    visitRoleBefore(context: Context): void;
+    visitRole(context: Context): void;
     visitOperationsBefore(context: Context): void;
     visitOperationBefore(context: Context): void;
     visitOperation(context: Context): void;
@@ -68,6 +75,9 @@ export interface Visitor {
     visitOperationAfter(context: Context): void;
     visitOperationsAfter(context: Context): void;
     visitInterfaceAfter(context: Context): void;
+    visitRoleAfter(context: Context): void;
+    visitRolesAfter(context: Context): void;
+    visitAllOperationsAfter(context: Context): void;
     visitObjectsBefore(context: Context): void;
     visitObjectBefore(context: Context): void;
     visitObject(context: Context): void;
@@ -94,10 +104,18 @@ export declare abstract class AbstractVisitor implements Visitor {
     triggerDocumentBefore(context: Context): void;
     visitNamespace(context: Context): void;
     triggerNamespace(context: Context): void;
+    visitAllOperationsBefore(context: Context): void;
+    triggerAllOperationsBefore(context: Context): void;
     visitInterfaceBefore(context: Context): void;
     triggerInterfaceBefore(context: Context): void;
     visitInterface(context: Context): void;
     triggerInterface(context: Context): void;
+    visitRolesBefore(context: Context): void;
+    triggerRolesBefore(context: Context): void;
+    visitRoleBefore(context: Context): void;
+    triggerRoleBefore(context: Context): void;
+    visitRole(context: Context): void;
+    triggerRole(context: Context): void;
     visitOperationsBefore(context: Context): void;
     triggerOperationsBefore(context: Context): void;
     visitOperationBefore(context: Context): void;
@@ -116,6 +134,12 @@ export declare abstract class AbstractVisitor implements Visitor {
     triggerOperationsAfter(context: Context): void;
     visitInterfaceAfter(context: Context): void;
     triggerInterfaceAfter(context: Context): void;
+    visitRoleAfter(context: Context): void;
+    triggerRoleAfter(context: Context): void;
+    visitRolesAfter(context: Context): void;
+    triggerRolesAfter(context: Context): void;
+    visitAllOperationsAfter(context: Context): void;
+    triggerAllOperationsAfter(context: Context): void;
     visitObjectsBefore(context: Context): void;
     triggerObjectsBefore(context: Context): void;
     visitObjectBefore(context: Context): void;

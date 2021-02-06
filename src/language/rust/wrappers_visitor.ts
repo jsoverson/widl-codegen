@@ -9,17 +9,22 @@ import {
   varAccessArg,
   functionName,
 } from ".";
+import { shouldIncludeHandler } from "../utils";
 
 export class WrapperVarsVisitor extends BaseVisitor {
   constructor(writer: Writer) {
     super(writer);
   }
 
-  visitInterfaceBefore(context: Context): void {
-    this.write(`lazy_static! {\n`);
-  }
-
   visitOperation(context: Context): void {
+    if (!shouldIncludeHandler(context)) {
+      return;
+    }
+    if (context.config.handlerPreamble != true) {
+      this.write(`#[cfg(feature = "guest")]
+lazy_static! {\n`);
+      context.config.handlerPreamble = true;
+    }
     const operation = context.operation!;
     this.write(
       `static ref ${functionName(
@@ -50,8 +55,11 @@ export class WrapperVarsVisitor extends BaseVisitor {
     this.write(`>>> = RwLock::new(None);\n`);
   }
 
-  visitInterfaceAfter(context: Context): void {
-    this.write(`}\n\n`);
+  visitAllOperationsAfter(context: Context): void {
+    if (context.config.handlerPreamble == true) {
+      this.write(`}\n\n`);
+    }
+    super.triggerAllOperationsAfter(context);
   }
 }
 
@@ -61,9 +69,13 @@ export class WrapperFuncsVisitor extends BaseVisitor {
   }
 
   visitOperation(context: Context): void {
+    if (!shouldIncludeHandler(context)) {
+      return;
+    }
     const operation = context.operation!;
     this.write(
-      `fn ${functionName(
+      `#[cfg(feature = "guest")]
+fn ${functionName(
         operation.name.value
       )}_wrapper(input_payload: &[u8]) -> CallResult {\n`
     );

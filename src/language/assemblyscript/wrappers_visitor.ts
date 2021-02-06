@@ -10,6 +10,7 @@ import {
   mapArgs,
   varAccessArg,
 } from ".";
+import { shouldIncludeHandler } from "../utils";
 
 export class WrappersVisitor extends BaseVisitor {
   constructor(writer: Writer) {
@@ -17,6 +18,9 @@ export class WrappersVisitor extends BaseVisitor {
   }
 
   visitOperation(context: Context): void {
+    if (!shouldIncludeHandler(context)) {
+      return;
+    }
     const operation = context.operation!;
     this.write(
       `var ${operation.name.value}Handler: (${mapArgs(

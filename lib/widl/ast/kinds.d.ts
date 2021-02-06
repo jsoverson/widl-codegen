@@ -29,6 +29,7 @@ export declare const kinds: {
     ObjectDefinition: string;
     FieldDefinition: string;
     InterfaceDefinition: string;
+    RoleDefinition: string;
     UnionDefinition: string;
     EnumDefinition: string;
     EnumValueDefinition: string;

@@ -20,22 +20,34 @@ import {
 export class ModuleVisitor extends BaseVisitor {
   constructor(writer: Writer) {
     super(writer);
-    this.setCallback("Interface", "host", (context: Context): void => {
-      const host = new HostVisitor(writer);
-      context.interface!.accept(context, host);
-    });
-    this.setCallback("Interface", "handlers", (context: Context): void => {
-      const handlers = new HandlersVisitor(this.writer);
-      context.interface!.accept(context, handlers);
-      const register = new RegisterVisitor(this.writer);
-      context.interface!.accept(context, register);
-    });
-    this.setCallback("Interface", "wrappers", (context: Context): void => {
-      const wrapperVars = new WrapperVarsVisitor(this.writer);
-      context.interface!.accept(context, wrapperVars);
-      const wrapperFuncs = new WrapperFuncsVisitor(this.writer);
-      context.interface!.accept(context, wrapperFuncs);
-    });
+    this.setCallback(
+      "AllOperationsBefore",
+      "host",
+      (context: Context): void => {
+        const host = new HostVisitor(writer);
+        context.document!.accept(context, host);
+      }
+    );
+    this.setCallback(
+      "AllOperationsBefore",
+      "handlers",
+      (context: Context): void => {
+        const handlers = new HandlersVisitor(this.writer);
+        context.document!.accept(context, handlers);
+        const register = new RegisterVisitor(this.writer);
+        context.document!.accept(context, register);
+      }
+    );
+    this.setCallback(
+      "AllOperationsBefore",
+      "wrappers",
+      (context: Context): void => {
+        const wrapperVars = new WrapperVarsVisitor(this.writer);
+        context.document!.accept(context, wrapperVars);
+        const wrapperFuncs = new WrapperFuncsVisitor(this.writer);
+        context.document!.accept(context, wrapperFuncs);
+      }
+    );
     this.setCallback(
       "OperationAfter",
       "arguments",

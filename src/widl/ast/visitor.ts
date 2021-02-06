@@ -4,6 +4,7 @@ import {
   NamespaceDefinition,
   ObjectDefinition,
   InterfaceDefinition,
+  RoleDefinition,
   EnumDefinition,
   UnionDefinition,
   InputValueDefinition,
@@ -29,6 +30,7 @@ export class Writer {
 export type ObjectMap<T = any> = { [key: string]: T };
 
 interface NamedParameters {
+  role?: RoleDefinition;
   object?: ObjectDefinition;
   operations?: OperationDefinition[];
   operation?: OperationDefinition;
@@ -54,12 +56,14 @@ export class Context {
   // Top-level definitions
   namespace: NamespaceDefinition;
   interface: InterfaceDefinition;
+  roles: RoleDefinition[];
   objects: ObjectDefinition[];
   enums: EnumDefinition[];
   unions: UnionDefinition[];
   inputs: InputValueDefinition[];
 
   // Drill-down definitions
+  role?: RoleDefinition;
   object?: ObjectDefinition;
   operations?: OperationDefinition[];
   operation?: OperationDefinition;
@@ -78,12 +82,13 @@ export class Context {
   annotation?: AnnotationDefinition;
 
   constructor(config: ObjectMap, document?: Document, other?: Context) {
-    this.config = config;
+    this.config = config || {};
 
     if (other != undefined) {
       this.document = other.document;
       this.namespace = other.namespace;
       this.interface = other.interface;
+      this.roles = other.roles;
       this.enums = other.enums;
       this.objects = other.objects;
       this.unions = other.unions;
@@ -95,6 +100,7 @@ export class Context {
         new Name(undefined, "")
       );
       this.interface = new InterfaceDefinition();
+      this.roles = new Array<RoleDefinition>();
       this.enums = new Array<EnumDefinition>();
       this.objects = new Array<ObjectDefinition>();
       this.unions = new Array<UnionDefinition>();
@@ -109,6 +115,7 @@ export class Context {
   }
 
   clone({
+    role,
     object,
     operations,
     operation,
@@ -128,6 +135,7 @@ export class Context {
   }: NamedParameters): Context {
     var context = new Context(this.config, undefined, this);
 
+    context.role = role || this.role;
     context.object = object || this.object;
     context.operations = operations || this.operations;
     context.operation = operation || this.operation;
@@ -157,6 +165,9 @@ export class Context {
         case value instanceof InterfaceDefinition:
           this.interface = value as InterfaceDefinition;
           break;
+        case value instanceof RoleDefinition:
+          this.roles.push(value as RoleDefinition);
+          break;
         case value instanceof ObjectDefinition:
           this.objects.push(value as ObjectDefinition);
           break;
@@ -178,8 +189,12 @@ export interface Visitor {
   visitDocumentBefore(context: Context): void;
   visitNamespace(context: Context): void;
 
+  visitAllOperationsBefore(context: Context): void;
   visitInterfaceBefore(context: Context): void;
   visitInterface(context: Context): void;
+  visitRolesBefore(context: Context): void;
+  visitRoleBefore(context: Context): void;
+  visitRole(context: Context): void;
   visitOperationsBefore(context: Context): void;
   visitOperationBefore(context: Context): void;
   visitOperation(context: Context): void;
@@ -189,6 +204,9 @@ export interface Visitor {
   visitOperationAfter(context: Context): void;
   visitOperationsAfter(context: Context): void;
   visitInterfaceAfter(context: Context): void;
+  visitRoleAfter(context: Context): void;
+  visitRolesAfter(context: Context): void;
+  visitAllOperationsAfter(context: Context): void;
 
   visitObjectsBefore(context: Context): void;
   visitObjectBefore(context: Context): void;
@@ -250,6 +268,12 @@ export abstract class AbstractVisitor implements Visitor {
     this.triggerCallbacks(context, "Namespace");
   }
 
+  public visitAllOperationsBefore(context: Context): void {
+    this.triggerAllOperationsBefore(context);
+  }
+  public triggerAllOperationsBefore(context: Context): void {
+    this.triggerCallbacks(context, "AllOperationsBefore");
+  }
   public visitInterfaceBefore(context: Context): void {
     this.triggerInterfaceBefore(context);
   }
@@ -261,6 +285,24 @@ export abstract class AbstractVisitor implements Visitor {
   }
   public triggerInterface(context: Context): void {
     this.triggerCallbacks(context, "Interface");
+  }
+  public visitRolesBefore(context: Context): void {
+    this.triggerRolesBefore(context);
+  }
+  public triggerRolesBefore(context: Context): void {
+    this.triggerCallbacks(context, "RolesBefore");
+  }
+  public visitRoleBefore(context: Context): void {
+    this.triggerRoleBefore(context);
+  }
+  public triggerRoleBefore(context: Context): void {
+    this.triggerCallbacks(context, "RoleBefore");
+  }
+  public visitRole(context: Context): void {
+    this.triggerRole(context);
+  }
+  public triggerRole(context: Context): void {
+    this.triggerCallbacks(context, "Role");
   }
   public visitOperationsBefore(context: Context): void {
     this.triggerOperationsBefore(context);
@@ -315,6 +357,24 @@ export abstract class AbstractVisitor implements Visitor {
   }
   public triggerInterfaceAfter(context: Context): void {
     this.triggerCallbacks(context, "InterfaceAfter");
+  }
+  public visitRoleAfter(context: Context): void {
+    this.triggerRoleAfter(context);
+  }
+  public triggerRoleAfter(context: Context): void {
+    this.triggerCallbacks(context, "RoleAfter");
+  }
+  public visitRolesAfter(context: Context): void {
+    this.triggerRolesAfter(context);
+  }
+  public triggerRolesAfter(context: Context): void {
+    this.triggerCallbacks(context, "RolesAfter");
+  }
+  public visitAllOperationsAfter(context: Context): void {
+    this.triggerAllOperationsAfter(context);
+  }
+  public triggerAllOperationsAfter(context: Context): void {
+    this.triggerCallbacks(context, "AllOperationsAfter");
   }
 
   public visitObjectsBefore(context: Context): void {

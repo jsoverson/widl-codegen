@@ -7,6 +7,7 @@ import {
   mapArgs,
   defaultValueForType,
 } from ".";
+import { shouldIncludeHandler } from "../utils";
 
 export class ScaffoldVisitor extends BaseVisitor {
   constructor(writer: Writer) {
@@ -14,22 +15,20 @@ export class ScaffoldVisitor extends BaseVisitor {
   }
 
   visitDocumentBefore(context: Context): void {
-    const packageName = context.config["package"] || "./module";
     super.visitDocumentBefore(context);
-    this.write(`import { handleCall, handleAbort } from "@wapc/as-guest";\n`);
-    this.write(`import { `);
     const types = new TypesVisitor(this.writer);
     context.document?.accept(context, types);
-    this.write(`Handlers } from "${packageName}";\n`);
   }
 
-  visitInterface(context: Context): void {
-    this.write(`\n`);
+  visitAllOperationsBefore(context: Context): void {
     const registration = new HandlerRegistrationVisitor(this.writer);
-    context.interface!.accept(context, registration);
+    context.document!.accept(context, registration);
   }
 
   visitOperation(context: Context): void {
+    if (!shouldIncludeHandler(context)) {
+      return;
+    }
     const operation = context.operation!;
     this.write(`\n`);
     this.write(
@@ -52,6 +51,7 @@ export class ScaffoldVisitor extends BaseVisitor {
   visitDocumentAfter(context: Context): void {
     this.write(`\n`);
     this.write(`// Boilerplate code for waPC.  Do not remove.\n\n`);
+    this.write(`import { handleCall, handleAbort } from "@wapc/as-guest";\n\n`);
     this
       .write(`export function __guest_call(operation_size: usize, payload_size: usize): bool {
   return handleCall(operation_size, payload_size);
@@ -74,11 +74,14 @@ class HandlerRegistrationVisitor extends BaseVisitor {
     super(writer);
   }
 
-  visitInterfaceBefore(context: Context): void {
+  visitAllOperationsBefore(context: Context): void {
     this.write(`export function wapc_init(): void {\n`);
   }
 
   visitOperation(context: Context): void {
+    if (!shouldIncludeHandler(context)) {
+      return;
+    }
     const operation = context.operation!;
     this.write(
       `  Handlers.register${capitalize(operation.name.value)}(${
@@ -87,13 +90,44 @@ class HandlerRegistrationVisitor extends BaseVisitor {
     );
   }
 
-  visitInterfaceAfter(context: Context): void {
+  visitAllOperationsAfter(context: Context): void {
     this.write(`}\n`);
   }
 }
 
 class TypesVisitor extends BaseVisitor {
+  hasOperations: boolean = false;
+  hasObjects: boolean = false;
+
+  visitOperation(context: Context): void {
+    if (shouldIncludeHandler(context)) {
+      this.hasOperations = true;
+    }
+  }
+
   visitObject(context: Context): void {
-    this.write(`${context.object!.name.value}, `);
+    if (!this.hasObjects) {
+      this.write(`import { `);
+      this.hasObjects = true;
+    } else {
+      this.write(`, `);
+    }
+    this.write(`${context.object!.name.value}`);
+  }
+
+  visitObjectsAfter(context: Context): void {
+    if (this.hasOperations == true) {
+      const className = context.config.handlersClassName || "Handlers";
+      if (this.hasObjects) {
+        this.write(`, `);
+      }
+      this.write(`${className}`);
+      this.hasObjects = true;
+    }
+
+    if (this.hasObjects) {
+      const packageName = context.config.package || "./module";
+      this.write(` } from "${packageName}";\n\n`);
+    }
   }
 }

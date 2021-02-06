@@ -1,4 +1,5 @@
 import { Context, Writer, BaseVisitor } from "../../widl";
+import { shouldIncludeHandler } from "../utils";
 import {
   defaultValueForType,
   expandType,
@@ -22,12 +23,15 @@ use guest::prelude::*;
 pub use ${useName}::*;\n\n`);
   }
 
-  visitInterface(context: Context): void {
+  visitAllOperationsBefore(context: Context): void {
     const registration = new HandlerRegistrationVisitor(this.writer);
-    context.interface!.accept(context, registration);
+    context.document!.accept(context, registration);
   }
 
   visitOperation(context: Context): void {
+    if (!shouldIncludeHandler(context)) {
+      return;
+    }
     const operation = context.operation!;
     this.write(`\n`);
     this.write(
@@ -65,12 +69,15 @@ class HandlerRegistrationVisitor extends BaseVisitor {
     super(writer);
   }
 
-  visitInterfaceBefore(context: Context): void {
+  visitAllOperationsBefore(context: Context): void {
     this.write(`#[no_mangle]
 pub fn wapc_init() {\n`);
   }
 
   visitOperation(context: Context): void {
+    if (!shouldIncludeHandler(context)) {
+      return;
+    }
     const operation = context.operation!;
     this.write(
       `    Handlers::register_${functionName(
@@ -79,7 +86,7 @@ pub fn wapc_init() {\n`);
     );
   }
 
-  visitInterfaceAfter(context: Context): void {
+  visitAllOperationsAfter(context: Context): void {
     this.write(`}\n`);
   }
 }

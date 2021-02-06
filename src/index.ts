@@ -32,6 +32,9 @@ fs.readFile(input, "utf8", async function (err, data) {
   const context = new Context({
     import: "github.com/wapc/languages-tests/tinygo/module",
     module: "module",
+    handlerRoles: ["Function"],
+    hostRoles: ["Unary2"],
+    skipInterface: true,
   });
 
   languages.forEach((lang) => {

@@ -12,17 +12,17 @@ export declare type ParseOptions = {
     noSource: boolean;
 };
 /**
- * Given a GraphQL source, parses it into a Document.
- * Throws GraphQLError if a syntax error is encountered.
+ * Given a WIDL source, parses it into a Document.
+ * Throws WidlError if a syntax error is encountered.
  */
 export declare function parse(source: string, options?: ParseOptions): Document;
 /**
- * Given a string containing a GraphQL value (ex. `[42]`), parse the AST for
+ * Given a string containing a WIDL value (ex. `[42]`), parse the AST for
  * that value.
- * Throws GraphQLError if a syntax error is encountered.
+ * Throws WidlError if a syntax error is encountered.
  *
- * This is useful within tools that operate upon GraphQL Values directly and
- * in isolation of complete GraphQL documents.
+ * This is useful within tools that operate upon WIDL Values directly and
+ * in isolation of complete WIDL documents.
  *
  * Consider providing the results to the utility function: valueFromAST().
  */

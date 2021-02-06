@@ -7,6 +7,7 @@ import {
   isVoid,
   mapArgs,
 } from ".";
+import { shouldIncludeHandler } from "../utils";
 
 export class ScaffoldVisitor extends BaseVisitor {
   constructor(writer: Writer) {
@@ -24,13 +25,16 @@ export class ScaffoldVisitor extends BaseVisitor {
     )\n\n`);
   }
 
-  visitInterface(context: Context): void {
+  visitAllOperationsBefore(context: Context): void {
     this.write(`\n`);
     const registration = new HandlerRegistrationVisitor(this.writer);
-    context.interface!.accept(context, registration);
+    context.document!.accept(context, registration);
   }
 
   visitOperation(context: Context): void {
+    if (!shouldIncludeHandler(context)) {
+      return;
+    }
     const packageName = context.config["package"] || "module";
     const operation = context.operation!;
     this.write(`\n`);

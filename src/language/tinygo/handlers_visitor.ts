@@ -1,18 +1,22 @@
 import { Context, Writer, BaseVisitor } from "../../widl";
 import { expandType, isReference, mapArgs, mapArg, capitalize } from ".";
 import { isVoid, strQuote } from "./helpers";
+import { shouldIncludeHandler } from "../utils";
 
 export class HandlersVisitor extends BaseVisitor {
   constructor(writer: Writer) {
     super(writer);
   }
 
-  visitInterfaceBefore(context: Context): void {
-    super.triggerInterfaceBefore(context);
-    this.write(`type Handlers struct {\n`);
-  }
-
   visitOperation(context: Context): void {
+    if (!shouldIncludeHandler(context)) {
+      return;
+    }
+    if (context.config.handlerPreamble != true) {
+      const className = context.config.handlersClassName || "Handlers";
+      this.write(`type ${className} struct {\n`);
+      context.config.handlerPreamble = true;
+    }
     const operation = context.operation!;
     this.write(`${capitalize(operation.name.value)} func(`);
     if (operation.isUnary()) {
@@ -37,9 +41,11 @@ export class HandlersVisitor extends BaseVisitor {
     super.triggerOperation(context);
   }
 
-  visitInterfaceAfter(context: Context): void {
-    this.write(`}\n\n`);
-    super.triggerInterfaceAfter(context);
+  visitAllOperationsAfter(context: Context): void {
+    if (context.config.handlerPreamble == true) {
+      this.write(`}\n\n`);
+    }
+    super.triggerAllOperationsAfter(context);
   }
 }
 
@@ -48,9 +54,12 @@ export class RegisterVisitor extends BaseVisitor {
     super(writer);
   }
 
-  visitInterfaceBefore(context: Context): void {
-    super.triggerInterfaceBefore(context);
-    this.write(`func (h Handlers) Register() {\n`);
+  visitAllOperationsBefore(context: Context): void {
+    super.triggerAllOperationsBefore(context);
+    if (context.config.handlerPreamble == true) {
+      const className = context.config.handlersClassName || "Handlers";
+      this.write(`func (h ${className}) Register() {\n`);
+    }
   }
 
   visitOperation(context: Context): void {
@@ -64,8 +73,11 @@ export class RegisterVisitor extends BaseVisitor {
     super.triggerOperation(context);
   }
 
-  visitInterfaceAfter(context: Context): void {
-    this.write(`}\n\n`);
-    super.triggerInterfaceAfter(context);
+  visitAllOperationsAfter(context: Context): void {
+    if (context.config.handlerPreamble == true) {
+      this.write(`}\n\n`);
+      delete context.config.handlerPreamble;
+    }
+    super.triggerAllOperationsAfter(context);
   }
 }

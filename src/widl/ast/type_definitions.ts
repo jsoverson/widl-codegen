@@ -281,6 +281,41 @@ export class InterfaceDefinition extends AbstractNode {
   }
 }
 
+export class RoleDefinition extends AbstractNode {
+  name: Name;
+  description?: StringValue;
+  operations: OperationDefinition[];
+  annotations: Annotation[];
+
+  constructor(
+    loc: Location | undefined,
+    name: Name,
+    desc?: StringValue,
+    op?: OperationDefinition[],
+    annotations?: Annotation[]
+  ) {
+    super(kinds.RoleDefinition, loc);
+    this.name = name;
+    this.description = desc;
+    this.operations = op || [];
+    this.annotations = annotations || [];
+  }
+
+  public accept(context: Context, visitor: Visitor): void {
+    visitor.visitRoleBefore(context);
+    visitor.visitRole(context);
+
+    context = context.clone({ operations: context.role?.operations });
+    visitor.visitOperationsBefore(context);
+    context.operations!.map((operation) => {
+      operation.accept(context.clone({ operation: operation }), visitor);
+    });
+    visitor.visitOperationsAfter(context);
+
+    visitor.visitRoleAfter(context);
+  }
+}
+
 export class UnionDefinition extends AbstractNode implements Definition {
   name: Name;
   description?: StringValue;

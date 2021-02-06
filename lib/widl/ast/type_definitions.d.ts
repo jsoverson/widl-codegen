@@ -69,6 +69,14 @@ export declare class InterfaceDefinition extends AbstractNode {
     constructor(loc?: Location, desc?: StringValue, op?: OperationDefinition[], annotations?: Annotation[]);
     accept(context: Context, visitor: Visitor): void;
 }
+export declare class RoleDefinition extends AbstractNode {
+    name: Name;
+    description?: StringValue;
+    operations: OperationDefinition[];
+    annotations: Annotation[];
+    constructor(loc: Location | undefined, name: Name, desc?: StringValue, op?: OperationDefinition[], annotations?: Annotation[]);
+    accept(context: Context, visitor: Visitor): void;
+}
 export declare class UnionDefinition extends AbstractNode implements Definition {
     name: Name;
     description?: StringValue;

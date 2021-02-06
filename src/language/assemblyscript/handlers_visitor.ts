@@ -7,18 +7,24 @@ import {
   mapArg,
   capitalize,
 } from ".";
+import { shouldIncludeHandler } from "../utils";
 
 export class HandlersVisitor extends BaseVisitor {
   constructor(writer: Writer) {
     super(writer);
   }
 
-  visitInterfaceBefore(context: Context): void {
-    super.triggerInterfaceBefore(context);
-    this.write(`export class Handlers {\n`);
-  }
-
   visitOperation(context: Context): void {
+    if (!shouldIncludeHandler(context)) {
+      return;
+    }
+    if (context.config.handlerPreamble != true) {
+      const className = context.config.handlersClassName || "Handlers";
+      this.write(`
+      import { register } from "@wapc/as-guest";
+      export class ${className} {\n`);
+      context.config.handlerPreamble = true;
+    }
     this.write(`\n`);
     const operation = context.operation!;
     let opVal = "";
@@ -41,8 +47,11 @@ export class HandlersVisitor extends BaseVisitor {
     super.triggerOperation(context);
   }
 
-  visitInterfaceAfter(context: Context): void {
-    this.write(`}\n\n`);
-    super.triggerInterfaceAfter(context);
+  visitAllOperationsAfter(context: Context): void {
+    if (context.config.handlerPreamble == true) {
+      this.write(`}\n\n`);
+      delete context.config.handlerPreamble;
+    }
+    super.triggerAllOperationsAfter(context);
   }
 }

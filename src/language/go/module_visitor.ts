@@ -12,10 +12,14 @@ import { capitalize, StructVisitor, HostVisitor } from ".";
 export class ModuleVisitor extends BaseVisitor {
   constructor(writer: Writer) {
     super(writer);
-    this.setCallback("Interface", "host", (context: Context): void => {
-      const host = new HostVisitor(writer);
-      context.interface!.accept(context, host);
-    });
+    this.setCallback(
+      "AllOperationsBefore",
+      "host",
+      (context: Context): void => {
+        const host = new HostVisitor(writer);
+        context.document!.accept(context, host);
+      }
+    );
     this.setCallback(
       "OperationAfter",
       "arguments",

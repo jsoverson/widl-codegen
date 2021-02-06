@@ -17,7 +17,16 @@ export class Document extends AbstractNode {
     visitor.visitDocumentBefore(context);
 
     context.namespace.accept(context, visitor);
+
+    visitor.visitAllOperationsBefore(context);
     context.interface.accept(context, visitor);
+
+    visitor.visitRolesBefore(context);
+    context.roles!.map((role) => {
+      role.accept(context.clone({ role: role }), visitor);
+    });
+    visitor.visitRolesAfter(context);
+    visitor.visitAllOperationsAfter(context);
 
     visitor.visitObjectsBefore(context);
     context.objects!.map((object) => {

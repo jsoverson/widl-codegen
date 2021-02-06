@@ -8,23 +8,29 @@ import {
   isVoid,
   isObject,
 } from ".";
+import { shouldIncludeHostCall } from "../utils";
 
 export class HostVisitor extends BaseVisitor {
   constructor(writer: Writer) {
     super(writer);
   }
 
-  visitInterfaceBefore(context: Context): void {
-    super.triggerInterfaceBefore(context);
-    this.write(`export class Host {
+  visitOperation(context: Context): void {
+    if (!shouldIncludeHostCall(context)) {
+      return;
+    }
+    if (context.config.hostPreamble != true) {
+      const className = context.config.hostClassName || "Host";
+      this.write(`
+      import { hostCall } from "@wapc/as-guest";
+      export class ${className} {
       binding: string;
   
       constructor(binding: string) {
         this.binding = binding;
       }\n`);
-  }
-
-  visitOperation(context: Context): void {
+      context.config.hostPreamble = true;
+    }
     this.write(`\n`);
     const operation = context.operation!;
     this.write(`  ${operation.name.value}(`);
@@ -94,8 +100,11 @@ export class HostVisitor extends BaseVisitor {
     super.triggerOperation(context);
   }
 
-  visitInterfaceAfter(context: Context): void {
-    this.write(`}\n\n`);
-    super.triggerInterfaceAfter(context);
+  visitAllOperationsAfter(context: Context): void {
+    if (context.config.hostPreamble == true) {
+      this.write(`}\n\n`);
+      delete context.config.hostPreamble;
+    }
+    super.triggerAllOperationsAfter(context);
   }
 }

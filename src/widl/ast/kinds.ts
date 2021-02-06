@@ -49,6 +49,7 @@ export const kinds = {
   ObjectDefinition: "ObjectDefinition", // previously ObjectTypeDefinition
   FieldDefinition: "FieldDefinition",
   InterfaceDefinition: "InterfaceDefinition", // previously InterfaceTypeDefinition
+  RoleDefinition: "RoleDefinition",
   UnionDefinition: "UnionDefinition", // previously UnionTypeDefinition
   EnumDefinition: "EnumDefinition", // previously EnumTypeDefinition
   EnumValueDefinition: "EnumValueDefinition",

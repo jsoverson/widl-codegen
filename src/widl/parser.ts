@@ -31,6 +31,7 @@ import {
   Node,
   ObjectDefinition,
   InterfaceDefinition,
+  RoleDefinition,
   UnionDefinition,
   EnumDefinition,
   AnnotationDefinition,
@@ -55,8 +56,8 @@ export type ParseOptions = {
 };
 
 /**
- * Given a GraphQL source, parses it into a Document.
- * Throws GraphQLError if a syntax error is encountered.
+ * Given a WIDL source, parses it into a Document.
+ * Throws WidlError if a syntax error is encountered.
  */
 export function parse(source: string, options?: ParseOptions): Document {
   const parser = new Parser(source, options);
@@ -64,12 +65,12 @@ export function parse(source: string, options?: ParseOptions): Document {
 }
 
 /**
- * Given a string containing a GraphQL value (ex. `[42]`), parse the AST for
+ * Given a string containing a WIDL value (ex. `[42]`), parse the AST for
  * that value.
- * Throws GraphQLError if a syntax error is encountered.
+ * Throws WidlError if a syntax error is encountered.
  *
- * This is useful within tools that operate upon GraphQL Values directly and
- * in isolation of complete GraphQL documents.
+ * This is useful within tools that operate upon WIDL Values directly and
+ * in isolation of complete WIDL documents.
  *
  * Consider providing the results to the utility function: valueFromAST().
  */
@@ -128,19 +129,14 @@ class Parser {
   parseDefinition(): Definition {
     if (this.peek(TokenKind.NAME)) {
       switch (this._lexer.token.value) {
-        //case "query":
-        //case "mutation":
-        //case "subscription":
-        //  return this.parseOperationDefinition();
         case "interface":
           return this.parseInterfaceTypeDefinition();
-        //case "schema":
+        case "role":
+          return this.parseRoleTypeDefinition();
         case "scalar":
         case "type":
         case "union":
         case "enum":
-        //case "input":
-        case "directive":
           return this.parseTypeSystemDefinition();
         case "namespace":
           return this.parseNamespaceDefinition();
@@ -400,6 +396,7 @@ class Parser {
    *   - ScalarTypeDefinition
    *   - ObjectTypeDefinition
    *   - InterfaceTypeDefinition
+   *   - RoleTypeDefinition
    *   - UnionTypeDefinition
    *   - EnumTypeDefinition
    *   - InputObjectTypeDefinition
@@ -422,6 +419,8 @@ class Parser {
           return this.parseObjectTypeDefinition();
         case "interface":
           return this.parseInterfaceTypeDefinition();
+        case "role":
+          return this.parseRoleTypeDefinition();
         case "union":
           return this.parseUnionTypeDefinition();
         case "enum":
@@ -638,6 +637,31 @@ class Parser {
     );
     return new InterfaceDefinition(
       this.loc(start),
+      description,
+      iOperations as OperationDefinition[],
+      directives
+    );
+  }
+
+  /**
+   * InterfaceTypeDefinition :
+   *   - Description? interface Name Directives[Const]? FieldsDefinition?
+   */
+  parseRoleTypeDefinition(): Node {
+    const start = this._lexer.token;
+    const description = this.parseDescription();
+    this.expectKeyword("role");
+    const name = this.parseName();
+    const directives = this.parseAnnotations();
+    const iOperations = this.reverse(
+      TokenKind.BRACE_L,
+      this.parseOperationDefinition,
+      TokenKind.BRACE_R,
+      false
+    );
+    return new RoleDefinition(
+      this.loc(start),
+      name,
       description,
       iOperations as OperationDefinition[],
       directives

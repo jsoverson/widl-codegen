@@ -18,24 +18,35 @@ import {
 export class ModuleVisitor extends ClassVisitor {
   constructor(writer: Writer) {
     super(writer);
-    this.setCallback("Interface", "host", (context: Context): void => {
-      const host = new HostVisitor(writer);
-      context.interface!.accept(context, host);
-    });
-    this.setCallback("Interface", "handlers", (context: Context): void => {
-      const handlers = new HandlersVisitor(this.writer);
-      context.interface!.accept(context, handlers);
-    });
-    this.setCallback("Interface", "wrappers", (context: Context): void => {
-      const wrappers = new WrappersVisitor(this.writer);
-      context.interface!.accept(context, wrappers);
-    });
+    this.setCallback(
+      "AllOperationsBefore",
+      "host",
+      (context: Context): void => {
+        const host = new HostVisitor(writer);
+        context.document!.accept(context, host);
+      }
+    );
+    this.setCallback(
+      "AllOperationsBefore",
+      "handlers",
+      (context: Context): void => {
+        const handlers = new HandlersVisitor(this.writer);
+        context.document!.accept(context, handlers);
+      }
+    );
+    this.setCallback(
+      "AllOperationsBefore",
+      "wrappers",
+      (context: Context): void => {
+        const wrappers = new WrappersVisitor(this.writer);
+        context.document!.accept(context, wrappers);
+      }
+    );
   }
 
   visitDocumentBefore(context: Context): void {
     this.write(
-      `import { register, hostCall } from "@wapc/as-guest";
-import { Decoder, Writer, Encoder, Sizer, Codec, Value } from "@wapc/as-msgpack";\n`
+      `import { Decoder, Writer, Encoder, Sizer, Codec } from "@wapc/as-msgpack";\n\n`
     );
     super.triggerDocumentBefore(context);
   }

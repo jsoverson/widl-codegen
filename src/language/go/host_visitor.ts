@@ -1,39 +1,42 @@
-import { Context, Writer, BaseVisitor, Optional, List } from "../../widl";
+import { Context, Writer, BaseVisitor, Optional } from "../../widl";
 import {
   expandType,
-  read,
   isReference,
   strQuote,
   capitalize,
   fieldName,
   isVoid,
-  isObject,
 } from ".";
-import { defaultValueForType } from "./helpers";
+import { shouldIncludeHostCall } from "../utils";
 
 export class HostVisitor extends BaseVisitor {
   constructor(writer: Writer) {
     super(writer);
   }
 
-  visitInterfaceBefore(context: Context): void {
-    super.triggerInterfaceBefore(context);
-    this.write(`type Module struct {
-\tinstance *wapc.Instance
-}
-
-func New(instance *wapc.Instance) *Module {
-\treturn &Module{
-\t\instance: instance,
-\t}
-}\n`);
-  }
-
   visitOperation(context: Context): void {
+    if (!shouldIncludeHostCall(context)) {
+      return;
+    }
+    const className = context.config.hostClassName || "Host";
+    if (context.config.hostPreamble != true) {
+      this.write(`type ${className} struct {
+  \tinstance *wapc.Instance
+  }
+  
+  func New(instance *wapc.Instance) *${className} {
+  \treturn &${className}{
+  \t\instance: instance,
+  \t}
+  }\n`);
+      context.config.hostPreamble = true;
+    }
     this.write(`\n`);
     const operation = context.operation!;
     this.write(
-      `func (m *Module) ${capitalize(operation.name.value)}(ctx context.Context`
+      `func (m *${className}) ${capitalize(
+        operation.name.value
+      )}(ctx context.Context`
     );
     operation.arguments.map((arg, index) => {
       this.write(
@@ -112,5 +115,12 @@ func New(instance *wapc.Instance) *Module {
     }
     this.write(`}\n`);
     super.triggerOperation(context);
+  }
+
+  visitAllOperationsAfter(context: Context): void {
+    if (context.config.hostPreamble == true) {
+      delete context.config.hostPreamble;
+    }
+    super.triggerAllOperationsAfter(context);
   }
 }

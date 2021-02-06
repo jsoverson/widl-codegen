@@ -10,17 +10,21 @@ import {
   mapArgs,
   varAccessArg,
 } from ".";
+import { shouldIncludeHandler } from "../utils";
 
 export class WrapperVarsVisitor extends BaseVisitor {
   constructor(writer: Writer) {
     super(writer);
   }
 
-  visitInterfaceBefore(context: Context): void {
-    this.write(`var (\n`);
-  }
-
   visitOperation(context: Context): void {
+    if (!shouldIncludeHandler(context)) {
+      return;
+    }
+    if (context.config.handlerPreamble != true) {
+      this.write(`var (\n`);
+      context.config.handlerPreamble = true;
+    }
     const operation = context.operation!;
     this.write(
       `\t${operation.name.value}Handler func (${mapArgs(operation.arguments)}) `
@@ -40,8 +44,12 @@ export class WrapperVarsVisitor extends BaseVisitor {
     this.write(`\n`);
   }
 
-  visitInterfaceAfter(context: Context): void {
-    this.write(`)\n\n`);
+  visitAllOperationsAfter(context: Context): void {
+    if (context.config.handlerPreamble == true) {
+      this.write(`)\n\n`);
+      delete context.config.handlerPreamble;
+    }
+    super.triggerAllOperationsAfter(context);
   }
 }
 
@@ -51,6 +59,9 @@ export class WrapperFuncsVisitor extends BaseVisitor {
   }
 
   visitOperation(context: Context): void {
+    if (!shouldIncludeHandler(context)) {
+      return;
+    }
     const operation = context.operation!;
     this
       .write(`func ${operation.name.value}Wrapper(payload []byte) ([]byte, error) {

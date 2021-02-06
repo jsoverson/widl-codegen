@@ -10,29 +10,34 @@ import {
   isObject,
 } from ".";
 import { defaultValueForType } from "./helpers";
+import { shouldIncludeHostCall } from "../utils";
 
 export class HostVisitor extends BaseVisitor {
   constructor(writer: Writer) {
     super(writer);
   }
 
-  visitInterfaceBefore(context: Context): void {
-    super.triggerInterfaceBefore(context);
-    this.write(`type Host struct {
+  visitOperation(context: Context): void {
+    if (!shouldIncludeHostCall(context)) {
+      return;
+    }
+    if (context.config.hostPreamble != true) {
+      const className = context.config.hostClassName || "Host";
+      this.write(`type ${className} struct {
 \tbinding string
 }
 
-func NewHost(binding string) *Host {
-\treturn &Host{
+func New${className}(binding string) *${className} {
+\treturn &${className}{
 \t\tbinding: binding,
 \t}
 }\n`);
-  }
-
-  visitOperation(context: Context): void {
+      context.config.hostPreamble = true;
+    }
+    const className = context.config.hostClassName || "Host";
     this.write(`\n`);
     const operation = context.operation!;
-    this.write(`func (h *Host) ${capitalize(operation.name.value)}(`);
+    this.write(`func (h *${className}) ${capitalize(operation.name.value)}(`);
     operation.arguments.map((arg, index) => {
       if (index > 0) {
         this.write(`, `);
@@ -131,5 +136,12 @@ func NewHost(binding string) *Host {
     }
     this.write(`}\n`);
     super.triggerOperation(context);
+  }
+
+  visitAllOperationsAfter(context: Context): void {
+    if (context.config.hostPreamble == true) {
+      delete context.config.hostPreamble;
+    }
+    super.triggerAllOperationsAfter(context);
   }
 }
