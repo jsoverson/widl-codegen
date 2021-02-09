@@ -8,7 +8,7 @@ import {
   isVoid,
 } from ".";
 import { functionName } from "./helpers";
-import { shouldIncludeHostCall } from "../utils";
+import { formatComment, shouldIncludeHostCall } from "../utils";
 
 export class HostVisitor extends BaseVisitor {
   constructor(writer: Writer) {
@@ -54,6 +54,7 @@ pub struct ${className} {
       context.config.hostPreamble = true;
     }
     const operation = context.operation!;
+    this.write(formatComment("  /// ", operation.description, 80));
     this.write(`\npub fn ${functionName(operation.name.value)}(&self`);
     operation.arguments.map((arg, index) => {
       this.write(
