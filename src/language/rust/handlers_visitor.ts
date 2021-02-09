@@ -1,7 +1,7 @@
 import { Context, Writer, BaseVisitor } from "../../widl";
 import { expandType, isReference } from ".";
 import { functionName, isVoid } from "./helpers";
-import { shouldIncludeHandler } from "../utils";
+import { formatComment, shouldIncludeHandler } from "../utils";
 
 export class HandlersVisitor extends BaseVisitor {
   constructor(writer: Writer) {
@@ -22,6 +22,7 @@ impl ${className} {\n`);
       context.config.handlerPreamble = true;
     }
     const operation = context.operation!;
+    this.write(formatComment("  /// ", operation.description, 80));
     this.write(`pub fn register_${functionName(operation.name.value)}(f: fn(`);
     operation.arguments.forEach((arg, i) => {
       if (i > 0) {
