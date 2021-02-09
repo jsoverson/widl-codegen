@@ -621,6 +621,12 @@ export function capitalize(str: string): string {
   return str[0].toUpperCase() + str.slice(1);
 }
 
+export function uncapitalize(str: string): string {
+  if (str.length == 0) return str;
+  if (str.length == 1) return str[0].toLowerCase();
+  return str[0].toLowerCase() + str.slice(1);
+}
+
 export function fieldName(str: string): string {
   str = capitalize(str);
   if (str.endsWith("Id")) {

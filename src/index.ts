@@ -30,7 +30,7 @@ fs.readFile(input, "utf8", async function (err, data) {
   }
   const doc = parse(data);
   const context = new Context({
-    import: "github.com/wapc/languages-tests/tinygo/module",
+    import: "github.com/wapc/widl-codegen/tinygo",
     module: "module",
     handlerRoles: ["Function"],
     hostRoles: ["Unary2"],
@@ -63,8 +63,8 @@ fs.readFile(input, "utf8", async function (err, data) {
           const visitor = new TinyGoModuleVisitor(writer);
           doc.accept(context, visitor);
           let source = writer.string();
-          fs.writeFileSync("module.go", source);
-          formatGolang("module.go");
+          fs.writeFileSync("tinygo/module.go", source);
+          formatGolang("tinygo/module.go");
         }
         {
           const writer = new Writer();

@@ -16,12 +16,16 @@ export class ScaffoldVisitor extends BaseVisitor {
 
   visitDocumentBefore(context: Context): void {
     const importPath =
-      context.config["import"] || "github.com/myorg/mymodule/pkg/module";
+      context.config.import || "github.com/myorg/mymodule/pkg/module";
+    let module = context.config.module || "";
+    if (module.length > 0) {
+      module += " ";
+    }
     super.visitDocumentBefore(context);
     this.write(`package main
 
     import (
-      "${importPath}"
+      ${module}"${importPath}"
     )\n\n`);
   }
 
@@ -73,19 +77,22 @@ class HandlerRegistrationVisitor extends BaseVisitor {
     super(writer);
   }
 
-  visitInterfaceBefore(context: Context): void {
+  visitAllOperationsBefore(context: Context): void {
     this.write(`func main() {
       module.Handlers{\n`);
   }
 
   visitOperation(context: Context): void {
+    if (!shouldIncludeHandler(context)) {
+      return;
+    }
     const operation = context.operation!;
     this.write(
       `\t\t${capitalize(operation.name.value)}: ${operation.name.value},\n`
     );
   }
 
-  visitInterfaceAfter(context: Context): void {
+  visitAllOperationsAfter(context: Context): void {
     this.write(`}.Register()
   }\n`);
   }

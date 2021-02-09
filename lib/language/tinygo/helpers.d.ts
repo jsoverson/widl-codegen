@@ -78,6 +78,7 @@ export declare function isReference(annotations: Annotation[]): boolean;
  * @returns string with first character capitalized. If empty string returns empty string.
  */
 export declare function capitalize(str: string): string;
+export declare function uncapitalize(str: string): string;
 export declare function fieldName(str: string): string;
 /**
  * Given an array of OperationDefintion returns them as functions with their arguments

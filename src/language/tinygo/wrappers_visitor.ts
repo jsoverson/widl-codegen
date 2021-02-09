@@ -9,6 +9,7 @@ import {
   isObject,
   mapArgs,
   varAccessArg,
+  uncapitalize,
 } from ".";
 import { shouldIncludeHandler } from "../utils";
 
@@ -27,7 +28,9 @@ export class WrapperVarsVisitor extends BaseVisitor {
     }
     const operation = context.operation!;
     this.write(
-      `\t${operation.name.value}Handler func (${mapArgs(operation.arguments)}) `
+      `\t${uncapitalize(operation.name.value)}Handler func (${mapArgs(
+        operation.arguments
+      )}) `
     );
     if (!isVoid(operation.type)) {
       this.write(
@@ -63,8 +66,9 @@ export class WrapperFuncsVisitor extends BaseVisitor {
       return;
     }
     const operation = context.operation!;
-    this
-      .write(`func ${operation.name.value}Wrapper(payload []byte) ([]byte, error) {
+    this.write(`func ${uncapitalize(
+      operation.name.value
+    )}Wrapper(payload []byte) ([]byte, error) {
       decoder := msgpack.NewDecoder(payload)\n`);
     if (operation.isUnary()) {
       this.write(`var request ${expandType(
@@ -75,13 +79,13 @@ export class WrapperFuncsVisitor extends BaseVisitor {
       )}
       request.Decode(&decoder)\n`);
       this.write(isVoid(operation.type) ? "err := " : "response, err := ");
-      this.write(`${operation.name.value}Handler(request)\n`);
+      this.write(`${uncapitalize(operation.name.value)}Handler(request)\n`);
     } else {
       this.write(`var inputArgs ${capitalize(operation.name.value)}Args
       inputArgs.Decode(&decoder)\n`);
       this.write(isVoid(operation.type) ? "err := " : "response, err := ");
       this.write(
-        `${operation.name.value}Handler(${varAccessArg(
+        `${uncapitalize(operation.name.value)}Handler(${varAccessArg(
           "inputArgs",
           operation.arguments
         )})\n`

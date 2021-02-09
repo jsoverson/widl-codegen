@@ -1,5 +1,12 @@
 import { Context, Writer, BaseVisitor } from "../../widl";
-import { expandType, isReference, mapArgs, mapArg, capitalize } from ".";
+import {
+  expandType,
+  isReference,
+  mapArgs,
+  mapArg,
+  capitalize,
+  uncapitalize,
+} from ".";
 import { isVoid, strQuote } from "./helpers";
 import { shouldIncludeHandler } from "../utils";
 
@@ -63,12 +70,17 @@ export class RegisterVisitor extends BaseVisitor {
   }
 
   visitOperation(context: Context): void {
+    if (!shouldIncludeHandler(context)) {
+      return;
+    }
     const operation = context.operation!;
     this.write(`if h.${capitalize(operation.name.value)} != nil {
-      ${operation.name.value}Handler = h.${capitalize(operation.name.value)}
-      wapc.RegisterFunction(${strQuote(operation.name.value)}, ${
+      ${uncapitalize(operation.name.value)}Handler = h.${capitalize(
       operation.name.value
-    }Wrapper)
+    )}
+      wapc.RegisterFunction(${strQuote(operation.name.value)}, ${uncapitalize(
+      operation.name.value
+    )}Wrapper)
     }\n`);
     super.triggerOperation(context);
   }
