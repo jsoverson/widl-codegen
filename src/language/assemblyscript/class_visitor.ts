@@ -6,6 +6,7 @@ import {
   DecoderVisitor,
   EncoderVisitor,
 } from ".";
+import { formatComment } from "../utils";
 
 export class ClassVisitor extends BaseVisitor {
   constructor(writer: Writer) {
@@ -14,6 +15,7 @@ export class ClassVisitor extends BaseVisitor {
 
   visitObjectBefore(context: Context): void {
     super.triggerObjectBefore(context);
+    this.write(formatComment("// ", context.object!.description));
     this.write(
       `export class ${context.object!.name.value} implements Codec {\n`
     );
@@ -21,6 +23,7 @@ export class ClassVisitor extends BaseVisitor {
 
   visitObjectField(context: Context): void {
     const field = context.field!;
+    this.write(formatComment("  // ", field.description));
     this.write(
       `  ${field.name.value}: ${expandType(
         field.type!,

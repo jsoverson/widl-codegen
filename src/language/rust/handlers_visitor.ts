@@ -22,7 +22,7 @@ impl ${className} {\n`);
       context.config.handlerPreamble = true;
     }
     const operation = context.operation!;
-    this.write(formatComment("  /// ", operation.description, 80));
+    this.write(formatComment("    /// ", operation.description));
     this.write(`pub fn register_${functionName(operation.name.value)}(f: fn(`);
     operation.arguments.forEach((arg, i) => {
       if (i > 0) {

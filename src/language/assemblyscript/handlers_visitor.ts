@@ -7,7 +7,7 @@ import {
   mapArg,
   capitalize,
 } from ".";
-import { shouldIncludeHandler } from "../utils";
+import { formatComment, shouldIncludeHandler } from "../utils";
 
 export class HandlersVisitor extends BaseVisitor {
   constructor(writer: Writer) {
@@ -28,6 +28,7 @@ export class HandlersVisitor extends BaseVisitor {
     this.write(`\n`);
     const operation = context.operation!;
     let opVal = "";
+    this.write(formatComment("  // ", operation.description));
     opVal += `static register${capitalize(operation.name.value)}(handler: (`;
     if (operation.isUnary()) {
       opVal += mapArg(operation.unaryOp());

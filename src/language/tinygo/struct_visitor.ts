@@ -6,6 +6,7 @@ import {
   DecoderVisitor,
   EncoderVisitor,
 } from ".";
+import { formatComment } from "../utils";
 
 export class StructVisitor extends BaseVisitor {
   constructor(writer: Writer) {
@@ -14,11 +15,13 @@ export class StructVisitor extends BaseVisitor {
 
   visitObjectBefore(context: Context): void {
     super.triggerObjectBefore(context);
+    this.write(formatComment("    // ", context.object!.description));
     this.write(`type ${context.object!.name.value} struct {\n`);
   }
 
   visitObjectField(context: Context): void {
     const field = context.field!;
+    this.write(formatComment("    // ", field.description));
     this.write(
       `\t${fieldName(field.name.value)} ${expandType(
         field.type!,

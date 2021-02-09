@@ -54,7 +54,7 @@ pub struct ${className} {
       context.config.hostPreamble = true;
     }
     const operation = context.operation!;
-    this.write(formatComment("  /// ", operation.description, 80));
+    this.write(formatComment("  /// ", operation.description));
     this.write(`\npub fn ${functionName(operation.name.value)}(&self`);
     operation.arguments.map((arg, index) => {
       this.write(

@@ -9,7 +9,7 @@ export class StructVisitor extends BaseVisitor {
 
   visitObjectBefore(context: Context): void {
     super.triggerObjectBefore(context);
-    this.write(formatComment("/// ", context.object!.description, 80));
+    this.write(formatComment("/// ", context.object!.description));
     this
       .write(`#[derive(Debug, PartialEq, Deserialize, Serialize, Default, Clone)]
 pub struct ${context.object!.name.value} {\n`);
@@ -23,7 +23,7 @@ pub struct ${context.object!.name.value} {\n`);
       true,
       isReference(field.annotations)
     );
-    this.write(formatComment("  /// ", field.description, 80));
+    this.write(formatComment("  /// ", field.description));
     if (expandedType.indexOf("Vec<u8>") != -1) {
       this.write(`#[serde(with = "serde_bytes")]\n`);
     }

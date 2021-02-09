@@ -24,7 +24,7 @@ function shouldInclude(context: Context, roles: Array<String>): boolean {
 export function formatComment(
   prefix: string,
   text: string | StringValue | undefined,
-  wrapLength: number
+  wrapLength: number = 80
 ): string {
   if (text == undefined) {
     return "";

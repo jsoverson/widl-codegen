@@ -8,7 +8,7 @@ import {
   uncapitalize,
 } from ".";
 import { isVoid, strQuote } from "./helpers";
-import { shouldIncludeHandler } from "../utils";
+import { formatComment, shouldIncludeHandler } from "../utils";
 
 export class HandlersVisitor extends BaseVisitor {
   constructor(writer: Writer) {
@@ -25,6 +25,7 @@ export class HandlersVisitor extends BaseVisitor {
       context.config.handlerPreamble = true;
     }
     const operation = context.operation!;
+    this.write(formatComment("    // ", operation.description));
     this.write(`${capitalize(operation.name.value)} func(`);
     if (operation.isUnary()) {
       this.write(mapArg(operation.unaryOp()));

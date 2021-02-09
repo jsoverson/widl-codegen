@@ -10,7 +10,7 @@ import {
   isObject,
 } from ".";
 import { defaultValueForType } from "./helpers";
-import { shouldIncludeHostCall } from "../utils";
+import { formatComment, shouldIncludeHostCall } from "../utils";
 
 export class HostVisitor extends BaseVisitor {
   constructor(writer: Writer) {
@@ -37,6 +37,7 @@ func New${className}(binding string) *${className} {
     const className = context.config.hostClassName || "Host";
     this.write(`\n`);
     const operation = context.operation!;
+    this.write(formatComment("    // ", operation.description));
     this.write(`func (h *${className}) ${capitalize(operation.name.value)}(`);
     operation.arguments.map((arg, index) => {
       if (index > 0) {

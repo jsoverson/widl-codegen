@@ -7,7 +7,7 @@ import {
   fieldName,
   isVoid,
 } from ".";
-import { shouldIncludeHostCall } from "../utils";
+import { formatComment, shouldIncludeHostCall } from "../utils";
 
 export class HostVisitor extends BaseVisitor {
   constructor(writer: Writer) {
@@ -33,6 +33,7 @@ export class HostVisitor extends BaseVisitor {
     }
     this.write(`\n`);
     const operation = context.operation!;
+    this.write(formatComment("// ", operation.description));
     this.write(
       `func (m *${className}) ${capitalize(
         operation.name.value
